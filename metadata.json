@@ -1,0 +1,8 @@
+{
+  "name": "سیستەمی چاودێریکردنی سیڤی و کرێکاران",
+  "description": "سیستەمی پێشکەوتووی چاودێریکردن و دروستکردنی سیڤی و بەڕێوەبردنی حجز، ڤیزا، ئەرشیف و هەناردەکردنی راپۆرتەکان",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
