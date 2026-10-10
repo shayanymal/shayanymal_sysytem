@@ -70,49 +70,54 @@ export default function App() {
   // Initialize data
   useEffect(() => {
     async function init() {
-      const state = await fetchInitialData();
-      const delIds = state.deletedWorkerIds || [];
-      setDeletedWorkerIds(delIds);
-      const cleanWorkers = (state.workers || []).filter((w) => !delIds.includes(w.id));
-      setWorkers(cleanWorkers);
-      setCompany(state.company);
-      setUsers(state.users);
-      setNotifications(state.notifications);
+      try {
+        const state = await fetchInitialData();
+        const delIds = state.deletedWorkerIds || [];
+        setDeletedWorkerIds(delIds);
+        const cleanWorkers = (state.workers || []).filter((w) => !delIds.includes(w.id));
+        setWorkers(cleanWorkers);
+        setCompany(state.company);
+        setUsers(state.users);
+        setNotifications(state.notifications);
 
-      // Check for QR Code direct reservation parameter (e.g. ?reserve=w-123 or #reserve=w-123)
-      if (typeof window !== 'undefined') {
-        const urlParams = new URLSearchParams(window.location.search);
-        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-        const reserveId = urlParams.get('reserve') || hashParams.get('reserve');
+        // Check for QR Code direct reservation parameter (e.g. ?reserve=w-123 or #reserve=w-123)
+        if (typeof window !== 'undefined') {
+          const urlParams = new URLSearchParams(window.location.search);
+          const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+          const reserveId = urlParams.get('reserve') || hashParams.get('reserve');
 
-        if (reserveId) {
-          const targetWorker = cleanWorkers.find((w) => w.id === reserveId);
-          if (targetWorker) {
-            setScannedWorkerForBooking(targetWorker);
-            setIsDirectClientModalOpen(true);
-            // Hide URL parameters so scanner user does not see raw query data
-            try {
-              window.history.replaceState({}, document.title, window.location.pathname);
-            } catch {}
+          if (reserveId) {
+            const targetWorker = cleanWorkers.find((w) => w.id === reserveId);
+            if (targetWorker) {
+              setScannedWorkerForBooking(targetWorker);
+              setIsDirectClientModalOpen(true);
+              // Hide URL parameters so scanner user does not see raw query data
+              try {
+                window.history.replaceState({}, document.title, window.location.pathname);
+              } catch {}
+            }
           }
         }
-      }
 
-      // Check stored user session
-      const storedUser = localStorage.getItem('current_user_session');
-      if (storedUser) {
-        try {
-          const parsed = JSON.parse(storedUser);
-          const found = state.users.find((u) => u.id === parsed.id && u.active);
-          if (found) {
-            setCurrentUser(found);
+        // Check stored user session
+        const storedUser = localStorage.getItem('current_user_session');
+        if (storedUser) {
+          try {
+            const parsed = JSON.parse(storedUser);
+            const found = state.users.find((u) => u.id === parsed.id && u.active);
+            if (found) {
+              setCurrentUser(found);
+            }
+          } catch {
+            // ignore
           }
-        } catch {
-          // ignore
         }
-      }
 
-      setDataLoaded(true);
+        setDataLoaded(true);
+      } catch (err) {
+        console.error('Initialization fallback triggered:', err);
+        setDataLoaded(true);
+      }
     }
     init();
   }, []);
